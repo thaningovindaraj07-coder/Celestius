@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<!--
+  CELESTIUS - Home page (index.html)
+  The student-led engineering & innovation community of
+  Chennai Institute of Technology (CIT Chennai).
+
+  Page structure:
+   - Background layers (gradient, star canvas, planets)
+   - Navbar
+   - Hero (big title + typewriter)
+   - About
+   - What we do (cards)
+   - Stats (counting numbers)
+   - Featured events
+   - Call to action
+   - Footer
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Makes the page fit phone screens properly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Browser tab icon (the Celestius logo mark) -->
+  <link rel="icon" type="image/png" href="images/logo-icon.png">
+  <title>Celestius | CIT Chennai</title>
+  <meta name="description" content="Celestius is the student-led engineering and innovation community at Chennai Institute of Technology.">
+
+  <!-- Google Fonts: Unbounded (headings) and Poppins (body text) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Our own stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="is-loading">
+
+  <!-- ===== INTRO LOADER: a "launch sequence" shown while the website loads =====
+       "is-loading" on <body> pauses all other animations until it is finished. -->
+  <div class="loader" aria-hidden="true">
+    <!-- The two halves of the screen. At the end they slide apart like doors. -->
+    <div class="loader-door door-top"></div>
+    <div class="loader-door door-bottom"></div>
+
+    <!-- Warp-speed stars, drawn by JavaScript (runIntroLoader in main.js) -->
+    <canvas class="loader-warp"></canvas>
+
+    <div class="loader-content">
+      <!-- Logo inside a ring that fills up with the loading percentage -->
+      <div class="loader-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-track" cx="60" cy="60" r="54" />
+          <circle class="ring-progress" cx="60" cy="60" r="54" pathLength="100" />
+        </svg>
+        <img src="images/logo-icon.png" alt="">
+      </div>
+
+      <!-- Each letter appears one after another (--i = its position) -->
+      <div class="loader-word">
+        <span style="--i:0">C</span><span style="--i:1">E</span><span style="--i:2">L</span><span style="--i:3">E</span><span style="--i:4">S</span><span style="--i:5">T</span><span style="--i:6">I</span><span style="--i:7">U</span><span style="--i:8">S</span>
+      </div>
+
+      <div class="loader-percent"><span class="loader-number">0</span>%</div>
+      <p class="loader-status">Loading the stars...</p>
+      <p class="loader-skip">Click anywhere to skip</p>
+    </div>
+  </div>
+
+  <!-- ===== BACKGROUND LAYERS ===== -->
+  <div class="progress-bar"></div>
+  <div class="sky-bg"></div>
+  <canvas id="star-canvas"></canvas>
+  <!-- No planet-1 or planet-3 on this page: Hephaestus stands in that spot,
+       and they would show through the see-through statue drawing -->
+  <div class="planet planet-2"></div>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar">
+    <nav class="container nav-inner">
+      <a href="index.html" class="logo"><img src="images/logo.png" alt="Celestius logo"></a>
+
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="pages/events.html">Events</a></li>
+        <li><a href="pages/team.html">Team</a></li>
+        <li><a href="pages/recruitment.html">Recruitment</a></li>
+        <li><a href="pages/contact.html">Contact</a></li>
+      </ul>
+
+      <!-- Hamburger button (only visible on phones) -->
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <div class="container">
+        <!-- Two columns, like the old website: text on the left, Hephaestus on the right -->
+        <div class="hero-grid">
+
+          <!-- LEFT: text -->
+          <div class="hero-content">
+            <!-- The Celestius logo mark, floating with a small planet orbiting it -->
+            <div class="hero-logo">
+              <img src="images/logo-icon.png" alt="Celestius logo mark">
+              <span class="hero-orbit"></span>
+            </div>
+
+            <span class="hero-tag"><span class="dot"></span>Recruitments are open</span>
+
+            <!-- Each letter is a separate span so it can animate on its own.
+                 --i is the letter's position, used for the animation delay. -->
+            <h1 class="hero-title" aria-label="Celestius">
+              <span style="--i:0">C</span><span style="--i:1">E</span><span style="--i:2">L</span><span style="--i:3">E</span><span style="--i:4">S</span><span style="--i:5">T</span><span style="--i:6">I</span><span style="--i:7">U</span><span style="--i:8">S</span>
+            </h1>
+
+            <!-- JavaScript types words into this span -->
+            <p class="hero-subtitle"><span class="typewriter"></span><span class="cursor"></span></p>
+
+            <p class="hero-text">
+              The student-led engineering &amp; innovation community at Chennai Institute of Technology.
+              Fostering software development, creative media, and hackathons.
+            </p>
+
+            <div class="hero-buttons">
+              <a href="pages/recruitment.html" class="btn btn-primary">Join Celestius</a>
+              <a href="pages/events.html" class="btn btn-outline">Explore Events</a>
+            </div>
+          </div>
+
+          <!-- RIGHT: statue of Hephaestus (image from the old website).
+               .scan-reveal = a yellow line "scans" the statue in when it appears
+               .scan-late   = waits for the loader to finish first
+               Two images are stacked: the white one, and a gold copy on top
+               that fills up from the feet on hover (all done in CSS). -->
+          <div class="hero-statue scan-reveal scan-late">
+            <div class="statue">
+              <img class="statue-base" src="images/hephaestus.png" alt="Hephaestus - God of the Forge">
+              <img class="statue-gold" src="images/hephaestus-gold.png" alt="" aria-hidden="true">
+              <span class="statue-name">Hephaestus · God of the Forge</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="scroll-hint" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="section">
+      <div class="container about-grid">
+        <div class="reveal reveal-left">
+          <span class="section-label">Who we are</span>
+          <h2 class="section-title">A sky full of builders</h2>
+          <p>
+            Celestius is the student-run engineering and innovation community of CIT Chennai.
+            We bring together developers, designers, speakers, editors and organisers
+            who love turning ideas into real things.
+          </p>
+          <p>
+            From flagship hackathons to hands-on workshops, we learn by building,
+            and we build together. Like stars in a constellation, every member
+            adds to the bigger picture.
+          </p>
+          <a href="pages/team.html" class="btn btn-outline">Meet the team</a>
+        </div>
+
+        <!-- PHOTO CONSTELLATION: real photos from Celestius events (from the old website),
+             placed like stars and joined by lines.
+             Each photo is placed with CSS variables in its style attribute:
+               --x, --y = where its centre is (in % of the box)
+               --size   = how wide it is (in % of the box)
+               --i      = its number, so the photos pop in one after another
+             The SVG lines use the same positions (the SVG is 500 x 500, so 40% = 200).
+             CSS draws the lines and pops the photos in when this scrolls into view. -->
+        <div class="constellation">
+          <svg viewBox="0 0 500 500" aria-hidden="true">
+            <!-- pathLength="100" makes every line count as 100 long, so one CSS rule draws them all -->
+            <line x1="45"  y1="75"  x2="200" y2="190" pathLength="100" />
+            <line x1="200" y1="190" x2="405" y2="85"  pathLength="100" />
+            <line x1="405" y1="85"  x2="475" y2="195" pathLength="100" />
+            <line x1="475" y1="195" x2="400" y2="300" pathLength="100" />
+            <line x1="400" y1="300" x2="265" y2="415" pathLength="100" />
+            <line x1="265" y1="415" x2="110" y2="385" pathLength="100" />
+            <line x1="110" y1="385" x2="200" y2="190" pathLength="100" />
+            <!-- small glowing stars where lines meet without a photo -->
+            <circle cx="45"  cy="75"  r="5" />
+            <circle cx="475" cy="195" r="5" />
+            <circle cx="30"  cy="260" r="3" />
+            <circle cx="470" cy="450" r="3" />
+          </svg>
+
+          <figure class="sky-photo" style="--x:40%; --y:38%; --size:40%; --i:0">
+            <div class="photo-frame"><img src="images/who-team.jpg" alt="The Celestius team together"></div>
+            <figcaption>Our team</figcaption>
+          </figure>
+
+          <figure class="sky-photo" style="--x:81%; --y:17%; --size:24%; --i:1">
+            <div class="photo-frame"><img src="images/who-banner.jpg" alt="Celestius banner at the Code Red event"></div>
+            <figcaption>Code Red</figcaption>
+          </figure>
+
+          <figure class="sky-photo" style="--x:80%; --y:60%; --size:28%; --i:2">
+            <div class="photo-frame"><img src="images/who-hackathon.jpg" alt="Students coding at a Celestius hackathon"></div>
+            <figcaption>Hackathon day</figcaption>
+          </figure>
+
+          <figure class="sky-photo" style="--x:53%; --y:83%; --size:19%; --i:3">
+            <div class="photo-frame"><img src="images/who-speak.jpg" alt="A student speaking at a Celestius session"></div>
+            <figcaption>Every voice counts</figcaption>
+          </figure>
+
+          <figure class="sky-photo" style="--x:22%; --y:77%; --size:26%; --i:4">
+            <div class="photo-frame"><img src="images/who-fun.jpg" alt="Celestius members taking a group selfie"></div>
+            <figcaption>Building together</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MORE ABOUT US (with the statue of Athena, like the old website) =====
+         Athena is on the left and the text is on the right.
+         .scan-reveal = a yellow line "scans" the statue in when you scroll to it -->
+    <section class="section">
+      <div class="container statue-section">
+        <div class="statue-side scan-reveal">
+          <div class="statue">
+            <img class="statue-base" src="images/athena.png" alt="Athena - Goddess of Wisdom and Strategy">
+            <img class="statue-gold" src="images/athena-gold.png" alt="" aria-hidden="true">
+            <span class="statue-name">Athena · Goddess of Wisdom</span>
+          </div>
+        </div>
+
+        <div class="reveal reveal-right">
+          <span class="section-label">Know us better</span>
+          <h2 class="section-title">Want to know <span class="highlight">more about us?</span></h2>
+          <p class="statue-text">
+            Explore everything about Celestius, from our technical events and hackathon
+            track records to our community of student builders, mentors and technology leaders.
+          </p>
+          <div class="hero-buttons">
+            <a href="pages/events.html" class="btn btn-primary">View events</a>
+            <a href="pages/team.html" class="btn btn-outline">Meet the team</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WHAT WE DO ===== -->
+    <section class="section">
+      <div class="container center">
+        <span class="section-label">What we do</span>
+        <h2 class="section-title">Innovate. Build. Collaborate.</h2>
+        <p class="section-intro">Three things guide everything we do at Celestius.</p>
+
+        <div class="grid">
+          <div class="card reveal">
+            <div class="card-icon bg-yellow">💻</div>
+            <h3>Software Development</h3>
+            <p>We build real websites, tools and apps for the club and the campus.</p>
+          </div>
+          <div class="card reveal">
+            <div class="card-icon bg-dark">🎨</div>
+            <h3>Creative Media</h3>
+            <p>Posters, videos, content and design that tell the story of Celestius.</p>
+          </div>
+          <div class="card reveal">
+            <div class="card-icon bg-light">🚀</div>
+            <h3>Hackathons &amp; Events</h3>
+            <p>Flagship hackathons, symposiums and workshops that bring students together.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STATS =====
+         data-target is the final number. JavaScript counts up to it. -->
+    <section class="section">
+      <div class="container">
+        <div class="stats">
+          <div class="stat reveal">
+            <div class="stat-number" data-target="7">0</div>
+            <div class="stat-label">Recruitment domains</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-number" data-target="4">0</div>
+            <div class="stat-label">Flagship events</div>
+          </div>
+          <div class="stat reveal">
+            <!-- Update this number with the real member count -->
+            <div class="stat-number" data-target="100" data-suffix="+">0</div>
+            <div class="stat-label">Active members</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FEATURED EVENTS ===== -->
+    <section class="section">
+      <div class="container center">
+        <span class="section-label">Flagship events</span>
+        <h2 class="section-title">Where ideas take off</h2>
+        <p class="section-intro">A peek at the events that make Celestius shine.</p>
+
+        <!-- data-event = which details to show in the pop-up (a key in js/events-data.js) -->
+        <div class="grid">
+          <div class="card reveal" data-event="promptverse">
+            <span class="tag">Hackathon</span>
+            <h3>PromptVerse Continuum</h3>
+            <p>Our flagship event where creativity meets AI and prompt crafting.</p>
+          </div>
+          <div class="card reveal" data-event="takshashila">
+            <span class="tag">Symposium</span>
+            <h3>Takshashila Tech</h3>
+            <p>The technical side of CIT's annual festival, powered by Celestius.</p>
+          </div>
+          <div class="card reveal" data-event="deadlock">
+            <span class="tag">Competition</span>
+            <h3>Deadlock</h3>
+            <p>Algorithmic battles that test logic, speed and problem solving.</p>
+          </div>
+        </div>
+
+        <div class="more-link">
+          <a href="pages/events.html" class="btn btn-primary">See all events</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CALL TO ACTION ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="cta reveal">
+          <h2>Ready to find your place among the stars?</h2>
+          <p>Recruitment is open across 7 technical and non-technical domains.</p>
+          <a href="pages/recruitment.html" class="btn btn-primary">Apply now</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="index.html" class="logo"><img src="images/logo.png" alt="Celestius logo"></a>
+          <p>The student-led engineering &amp; innovation community at Chennai Institute of Technology.</p>
+          <!-- Social icons (SVG drawings). Normally they are grey.
+               On hover each one turns into its real logo colours (see style.css) -->
+          <div class="socials">
+            <a href="https://www.linkedin.com/company/club-celestius-cit/" class="social-linkedin" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect width="4" height="12" x="2" y="9" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            </a>
+            <a href="https://www.instagram.com/celestius_cit/" class="social-instagram" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+              </svg>
+            </a>
+            <a href="https://github.com/Club-Celestius" class="social-github" target="_blank" rel="noopener" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+              </svg>
+            </a>
+            <a href="https://chat.whatsapp.com/HP3gqZe9BFPDqu1qowiurT" class="social-whatsapp" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.978-.276-.1-.476-.15-.677.15-.2.301-.777.978-.952 1.179-.175.2-.351.226-.652.075-.301-.15-1.272-.469-2.423-1.496-.896-.799-1.5-1.786-1.676-2.087-.175-.301-.019-.464.132-.614.136-.135.301-.351.451-.527.151-.175.201-.3.301-.501.101-.2.05-.376-.025-.526-.075-.15-.677-1.633-.928-2.235-.245-.586-.494-.506-.677-.516-.175-.01-.376-.01-.577-.01s-.527.075-.802.376c-.276.301-1.053 1.028-1.053 2.508 0 1.479 1.078 2.908 1.228 3.109.15.2 2.122 3.24 5.141 4.544.718.31 1.279.496 1.716.635.721.23 1.377.198 1.896.12.578-.087 1.78-.727 2.03-1.429.251-.702.251-1.304.176-1.429-.075-.125-.276-.2-.577-.35zM12.042 21.84c-1.77 0-3.504-.475-5.029-1.375l-.36-.213-3.738.98.997-3.644-.235-.374a9.78 9.78 0 0 1-1.502-5.234c0-5.419 4.409-9.828 9.832-9.828 2.625 0 5.093 1.023 6.949 2.88 1.856 1.856 2.878 4.325 2.877 6.95 0 5.42-4.408 9.83-9.786 9.83zm0-17.75c-4.367 0-7.92 3.553-7.92 7.92 0 1.396.365 2.76 1.058 3.966l.164.286-.628 2.296 2.348-.616.276.164a7.886 7.886 0 0 0 4.698 1.5c4.366 0 7.92-3.554 7.92-7.92 0-2.115-.824-4.103-2.32-5.598a7.883 7.883 0 0 0-5.596-2.098z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="pages/events.html">Events</a></li>
+            <li><a href="pages/team.html">Team</a></li>
+            <li><a href="pages/recruitment.html">Recruitment</a></li>
+            <li><a href="pages/contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Reach us</h4>
+          <ul>
+            <li><a href="mailto:celestius.club@gmail.com">celestius.club@gmail.com</a></li>
+            <li>Chennai Institute of Technology, Kundrathur, Chennai 600069</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; <span id="year"></span> Celestius · CIT Chennai. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top button -->
+  <button class="back-to-top" aria-label="Back to top">↑</button>
+
+  <!-- ===== EVENT POP-UP (MODAL) =====
+       Hidden until an event card is clicked. JavaScript fills .modal-content
+       with the details of the clicked event. data-close = clicking it closes the pop-up. -->
+  <div class="modal" id="event-modal" aria-hidden="true">
+    <div class="modal-overlay" data-close></div>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Event details">
+      <button class="modal-close" aria-label="Close" data-close>&times;</button>
+      <div class="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- JavaScript is loaded last so the HTML is ready first.
+       events-data.js must load BEFORE main.js, because main.js uses its EVENT_DETAILS -->
+  <script src="js/events-data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

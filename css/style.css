@@ -1,0 +1,2867 @@
+/* =========================================================
+   CELESTIUS - "Yellow & Black" theme
+   Built around the colours of the official Celestius logo:
+   deep black, bright yellow (#FFCC00) and white.
+   One shared stylesheet used by every page of the website.
+
+   Sections in this file:
+    1. Variables (colours, fonts, sizes)
+    2. Reset & base styles
+    3. Background (glowing gradient, star canvas, planets)
+    4. Page loader
+    5. Scroll progress bar, cursor sparkles, back-to-top
+    6. Navbar
+    7. Buttons
+    8. Hero section
+    9. Generic sections & headings
+   10. Cards (used for features, events, team, roles)
+   11. Stats counters
+   12. Events page (filter buttons)
+   13. Team page
+   14. Recruitment page (expandable role cards)
+   15. Forms (contact + apply)
+   16. Footer
+   17. Scroll reveal animation
+   18. Keyframe animations
+   19. Responsive (mobile) styles
+   20. Reduced motion (accessibility)
+   ========================================================= */
+
+
+/* ---------- 1. VARIABLES ----------
+   CSS variables let us store a value once and reuse it everywhere.
+   The names describe the JOB of the colour (background, text, accent),
+   so to change the whole theme we only change the values here. */
+:root {
+  --bg: #0A0A0A;            /* page background (almost black) */
+  --surface: #141414;       /* cards and panels */
+  --surface-2: #1E1E1E;     /* inputs, small boxes */
+  --border: rgba(255, 255, 255, 0.08);  /* thin borders */
+  --text: #FFFFFF;          /* main text */
+  --text-soft: #A1A1AA;     /* paragraphs, less important text */
+  --accent: #FFCC00;        /* the Celestius logo yellow */
+  --accent-soft: #FFE066;   /* lighter yellow for hovers */
+  --accent-glow: rgba(255, 204, 0, 0.35);  /* yellow glow for shadows */
+  --on-accent: #0A0A0A;     /* text colour placed ON yellow */
+  --error: #FF6B6B;         /* form errors */
+
+  --font-heading: "Unbounded", Arial, sans-serif;  /* bold, wide, techy */
+  --font-body: "Poppins", Arial, sans-serif;
+
+  --radius: 20px;                                 /* rounded corners */
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);       /* soft dark shadow */
+  --shadow-hover: 0 20px 40px rgba(255, 204, 0, 0.15);  /* yellow glow on hover */
+  --max-width: 1100px;                            /* content width */
+}
+
+
+/* ---------- 2. RESET & BASE ----------
+   Browsers add their own margins and padding. We remove them
+   so the page looks the same in every browser. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* width includes padding + border */
+}
+
+html {
+  scroll-behavior: smooth; /* smooth scrolling for #links */
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background-color: var(--bg);
+  line-height: 1.7;
+  overflow-x: hidden; /* stops sideways scrolling on phones */
+}
+
+/* Colour of text when the user selects it with the mouse */
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Centers content and keeps it from getting too wide */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+
+/* ---------- 3. BACKGROUND ----------
+   Three layers sit behind the content:
+   a) soft yellow glows that slowly move (pure CSS)
+   b) a canvas with twinkling stars (drawn by JavaScript)
+   c) glowing "planets" that float up and down (pure CSS) */
+
+/* a) Moving yellow glows on black */
+.sky-bg {
+  position: fixed;
+  inset: 0;               /* top, right, bottom, left = 0 (full screen) */
+  z-index: -3;            /* stays behind everything */
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 204, 0, 0.10), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 204, 0, 0.07), transparent 45%),
+    var(--bg);
+  background-size: 200% 200%;               /* make it bigger than the screen... */
+  animation: gradientShift 25s ease infinite; /* ...then slide it around */
+}
+
+/* b) Star canvas - JavaScript draws on this */
+#star-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none; /* clicks pass through to the page */
+}
+
+/* c) Floating planets */
+.planet {
+  position: fixed;
+  border-radius: 50%;     /* makes a circle */
+  z-index: -1;
+  opacity: 0.8;
+  animation: float 8s ease-in-out infinite;
+}
+
+/* The big yellow planet, like a small sun */
+.planet-1 {
+  width: 160px;
+  height: 160px;
+  top: 15%;
+  right: 6%;
+  background: radial-gradient(circle at 30% 30%, var(--accent-soft), var(--accent) 45%, #B38F00);
+  box-shadow: 0 0 60px var(--accent-glow);
+}
+
+/* A ring around planet 1 (like Saturn) using a pseudo-element */
+.planet-1::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 240px;
+  height: 50px;
+  border: 2px solid rgba(255, 204, 0, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-20deg);
+}
+
+.planet-2 {
+  width: 90px;
+  height: 90px;
+  bottom: 12%;
+  left: 5%;
+  background: radial-gradient(circle at 30% 30%, #FFFFFF, #3F3F46);
+  opacity: 0.5;
+  animation-delay: -3s;   /* starts at a different point so they don't move together */
+  animation-duration: 10s;
+}
+
+.planet-3 {
+  width: 50px;
+  height: 50px;
+  top: 60%;
+  right: 25%;
+  background: radial-gradient(circle at 30% 30%, var(--accent-soft), #806600);
+  opacity: 0.6;
+  animation-delay: -5s;
+  animation-duration: 12s;
+}
+
+
+/* ---------- 4. INTRO LOADER ("launch sequence") ----------
+   Shown while the website loads (see runIntroLoader in main.js):
+   1. warp-speed stars + a ring that fills up from 0% to 100%
+   2. at 100%, JS adds "launch": the logo grows and the stars speed up
+   3. then JS adds "open": a yellow line splits the screen and
+      the two halves (doors) slide away, showing the website
+
+   While <body> has the class "is-loading", every other animation on
+   the page is paused, so they start fresh when the doors open. */
+body.is-loading {
+  overflow: hidden;  /* no scrolling during the intro */
+}
+
+body.is-loading *,
+body.is-loading *::before,
+body.is-loading *::after {
+  animation-play-state: paused !important;
+}
+
+/* ...except the loader's own animations */
+body.is-loading .loader,
+body.is-loading .loader *,
+body.is-loading .loader::after,
+body.is-loading .loader *::before {
+  animation-play-state: running !important;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;   /* click to skip */
+}
+
+/* The two doors: each covers half the screen */
+.loader-door {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: var(--bg);
+  /* the 0.25s delay lets the yellow line appear first */
+  transition: transform 0.9s cubic-bezier(0.77, 0, 0.18, 1) 0.25s;
+}
+
+.door-top    { top: 0; }
+.door-bottom { bottom: 0; }
+
+/* OPEN: top door slides up, bottom door slides down */
+.loader.open .door-top    { transform: translateY(-100%); }
+.loader.open .door-bottom { transform: translateY(100%); }
+
+/* OPEN: a glowing yellow line shoots across the middle, then fades */
+.loader::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  transform: translate(-50%, -50%);
+  background: var(--accent);
+  box-shadow: 0 0 20px 4px var(--accent-glow);
+  opacity: 0;
+}
+
+.loader.open::after {
+  animation: seamFlash 1s ease forwards;
+}
+
+/* The canvas with the warp-speed stars */
+.loader-warp {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.4s ease;
+}
+
+/* Everything in the middle */
+.loader-content {
+  position: relative;
+  text-align: center;
+  padding: 0 20px;
+  transition: opacity 0.4s ease, transform 0.6s ease;
+}
+
+/* OPEN: the stars and the middle part fade out (the middle also grows) */
+.loader.open .loader-warp,
+.loader.open .loader-content {
+  opacity: 0;
+}
+
+.loader.open .loader-content {
+  transform: scale(1.3);
+}
+
+/* QUICK mode (2nd page and later in the same visit): only the doors */
+.loader.quick .loader-content,
+.loader.quick .loader-warp {
+  display: none;
+}
+
+/* The ring around the logo */
+.loader-ring {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 26px;
+}
+
+/* A dashed orbit that spins around the ring */
+.loader-ring::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 204, 0, 0.35);
+  animation: spin 8s linear infinite;
+}
+
+/* rotate(-90deg) makes the ring start filling from the top (12 o'clock) */
+.loader-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 3;
+}
+
+/* The yellow part. pathLength="100" in the HTML means the circle counts as
+   100 long, so stroke-dashoffset = 100 - percent fills it up exactly. */
+.ring-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 6px var(--accent));
+  transition: stroke-dashoffset 0.1s linear, stroke-width 0.3s ease;
+}
+
+.loader-ring img {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: calc(100% - 36px);
+  height: calc(100% - 36px);
+  border-radius: 50%;
+  box-shadow: 0 0 30px var(--accent-glow);
+  animation: pulse-soft 1.6s ease-in-out infinite;
+  transition: transform 0.4s ease;
+}
+
+/* LAUNCH: ring gets thicker, logo grows */
+.loader.launch .ring-progress {
+  stroke-width: 5;
+}
+
+.loader.launch .loader-ring img {
+  animation: none;
+  transform: scale(1.15);
+}
+
+/* "CELESTIUS": letters rise in one by one (same animation as the hero title) */
+.loader-word {
+  font-family: var(--font-heading);
+  font-size: clamp(1.6rem, 6vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  margin-right: -0.35em;  /* letter-spacing adds space after the last letter too; this re-centres it */
+}
+
+.loader-word span {
+  display: inline-block;
+  opacity: 0;
+  animation: letterRise 0.6s ease forwards;
+  animation-delay: calc(var(--i) * 0.07s + 0.2s);
+}
+
+/* "IUS" in yellow, like the hero title */
+.loader-word span:nth-child(n+7) {
+  color: var(--accent);
+}
+
+.loader-percent {
+  margin-top: 12px;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.loader-status {
+  margin-top: 6px;
+  min-height: 1.5em;  /* keeps the layout still when the text changes */
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.loader-skip {
+  margin-top: 34px;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #71717A;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+
+
+/* ---------- 5. PROGRESS BAR, SPARKLES, BACK-TO-TOP ---------- */
+
+/* Thin bar at the top. JavaScript changes its width while scrolling. */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  z-index: 200;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Tiny stars that JavaScript creates behind the mouse cursor */
+.sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  color: var(--accent);
+  font-size: 14px;
+  text-shadow: 0 0 8px var(--accent);
+  animation: sparkleFade 0.9s ease-out forwards;
+}
+
+/* Back-to-top button (hidden until JavaScript adds "show") */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 20px var(--accent-glow);
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 150;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* On hover it turns white, glows, and the arrow keeps jumping up */
+.back-to-top:hover {
+  background: var(--text);
+  box-shadow: 0 0 0 6px var(--accent-glow), 0 0 30px var(--accent-glow);
+  animation: arrowJump 0.8s ease-in-out infinite;
+}
+
+@keyframes arrowJump {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -6px; }
+}
+
+
+/* ---------- 6. NAVBAR ---------- */
+.navbar {
+  position: sticky;   /* sticks to the top while scrolling */
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(12px);   /* frosted glass effect */
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+/* The official Celestius logo image (images/logo.png) */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+/* Logo gently grows and tilts on hover */
+.logo:hover img {
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+}
+
+.nav-links a {
+  position: relative;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  transition: color 0.3s;
+}
+
+/* Animated underline: starts at width 0 and grows on hover */
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+/* Hamburger button - only visible on small screens (see section 19) */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.menu-toggle span {
+  width: 26px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* When open, the 3 lines turn into an "X" */
+.menu-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-toggle.open span:nth-child(2) { opacity: 0; }
+.menu-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+
+/* ---------- 7. BUTTONS ---------- */
+/* HOVER EFFECT "INK DROP":
+   1. A circle of colour (::before) grows from the exact point where the
+      mouse came in, until it fills the whole button.
+      JavaScript (buttonInkDrop in main.js) saves that point as --x and --y.
+   2. A shiny light streak (::after) sweeps across the button.
+   3. The button lifts up a little, and squeezes when you click it.
+   Each kind of button only sets two variables:
+   --fill (colour of the ink) and --fill-text (text colour on top of it). */
+.btn,
+.filter-btn {
+  --x: 50%;        /* where the ink starts (the middle until the mouse moves in) */
+  --y: 50%;
+  position: relative;
+  overflow: hidden;    /* hides the parts of the circle outside the button */
+  isolation: isolate;  /* lets the ink sit behind the text (z-index: -1) */
+}
+
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid var(--accent);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: transform 0.3s ease, box-shadow 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+/* 1. The ink circle: it starts at size 0 at the mouse point */
+.btn::before,
+.filter-btn::before {
+  content: "";
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 300%;           /* big enough to cover the button from any corner */
+  aspect-ratio: 1;       /* always a perfect circle */
+  border-radius: 50%;
+  background: var(--fill);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: -1;           /* behind the text */
+}
+
+/* 2. The shine: a slanted see-through white strip, waiting on the left */
+.btn::after,
+.filter-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-25deg);
+  pointer-events: none;
+}
+
+/* On hover (or keyboard focus) the ink grows and the shine sweeps across */
+.btn:hover::before,
+.btn:focus-visible::before,
+.filter-btn:hover::before,
+.filter-btn:focus-visible::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.btn:hover::after,
+.btn:focus-visible::after,
+.filter-btn:hover::after,
+.filter-btn:focus-visible::after {
+  left: 130%;
+  transition: left 0.7s ease;   /* only animate going right, so it doesn't sweep back */
+}
+
+/* 3. Lift up on hover, squeeze on click */
+.btn:hover,
+.btn:focus-visible {
+  color: var(--fill-text);
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+
+.btn:active,
+.filter-btn:active {
+  transform: scale(0.95);
+}
+
+/* Yellow button with black text, like the logo.
+   On hover, black ink fills it and the text turns yellow. */
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  --fill: var(--on-accent);
+  --fill-text: var(--accent);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  box-shadow: 0 0 0 4px var(--accent-glow), 0 12px 30px var(--accent-glow);
+}
+
+/* See-through button with a white border.
+   On hover, yellow ink fills it and the text turns black. */
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.4);
+  --fill: var(--accent);
+  --fill-text: var(--on-accent);
+}
+
+.btn-outline:hover,
+.btn-outline:focus-visible {
+  box-shadow: 0 12px 30px var(--accent-glow);
+}
+
+
+/* ---------- 8. HERO SECTION ---------- */
+.hero {
+  min-height: calc(100vh - 72px);  /* full screen minus navbar height */
+  display: flex;
+  align-items: center;
+  padding: 40px 0;
+}
+
+/* Two columns like the old website: text (7 parts) and statue (5 parts) */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Logo mark above the title. It floats up and down,
+   and a small yellow planet circles around it.
+   (18px left margin leaves room for the orbit ring) */
+.hero-logo {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 18px 0 32px 18px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.hero-logo img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 40px var(--accent-glow);
+}
+
+/* The orbit ring: a dashed circle bigger than the logo that spins */
+.hero-orbit {
+  position: absolute;
+  inset: -18px;
+  border: 1px dashed rgba(255, 204, 0, 0.5);
+  border-radius: 50%;
+  animation: spin 6s linear infinite;
+}
+
+/* The small planet riding on the orbit ring */
+.hero-orbit::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Small rounded label like "Recruitments are open" */
+.hero-tag {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 50px;
+  background: var(--surface);
+  border: 1px solid rgba(255, 204, 0, 0.4);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+/* Little pulsing dot inside the tag */
+.hero-tag .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ECC71;
+  margin-right: 6px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.hero-title {
+  font-size: clamp(2.2rem, 5.8vw, 4.8rem);  /* grows with screen width, but has min & max */
+  white-space: nowrap;                     /* keep "CELESTIUS" on one line */
+  font-weight: 800;
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+  text-shadow: 0 0 40px rgba(255, 204, 0, 0.25); /* soft yellow glow */
+}
+
+/* Each letter is its own <span>. They rise in one after another.
+   --i is set in the HTML (0, 1, 2 ...) and multiplied for the delay. */
+.hero-title span {
+  display: inline-block;
+  opacity: 0;
+  animation: letterRise 0.8s ease forwards;
+  animation-delay: calc(var(--i) * 0.08s + 0.6s);
+}
+
+/* The last 3 letters "IUS" are yellow, to match the logo's yellow half */
+.hero-title span:nth-child(n+7) {
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 3.5vw, 1.9rem);
+  color: var(--accent);
+  min-height: 3rem;  /* keeps space so the page doesn't jump while typing */
+  margin-bottom: 20px;
+}
+
+/* Blinking cursor after the typewriter text */
+.cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--text);
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: blink 0.8s step-end infinite;
+}
+
+.hero-text {
+  max-width: 540px;
+  margin-bottom: 36px;
+  color: var(--text-soft);
+  font-size: 1.05rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* "Scroll down" mouse icon at the bottom of the hero */
+.scroll-hint {
+  margin: 60px auto 0;
+  width: 26px;
+  height: 42px;
+  border: 2px solid var(--text-soft);
+  border-radius: 20px;
+  position: relative;
+}
+
+.scroll-hint::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 4px;
+  height: 8px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: scrollWheel 1.6s ease infinite;
+}
+
+/* Smaller hero used on the inner pages (Events, Team, ...) */
+.page-hero {
+  padding: 100px 0 60px;
+  text-align: center;
+}
+
+.page-hero h1 {
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  margin-bottom: 12px;
+}
+
+.page-hero p {
+  max-width: 600px;
+  margin: 0 auto;
+  color: var(--text-soft);
+}
+
+
+/* ---------- 9. SECTIONS & HEADINGS ---------- */
+.section {
+  padding: 90px 0;
+}
+
+.section-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+  margin-bottom: 16px;
+}
+
+.section-intro {
+  color: var(--text-soft);
+  max-width: 600px;
+  margin-bottom: 48px;
+}
+
+.center {
+  text-align: center;
+}
+
+.center .section-intro {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Space above a "see more" button under a grid */
+.more-link {
+  margin-top: 48px;
+}
+
+/* Two-column layout for the About section */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.about-grid p {
+  color: var(--text-soft);
+  margin-bottom: 16px;
+}
+
+/* ----- Photo constellation (About section) -----
+   Real event photos placed like stars and joined by lines.
+   A square box: the SVG lines fill it, and the photos are placed on top. */
+.constellation {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1;   /* always a square, so % positions match the SVG */
+  margin: 0 auto;
+}
+
+.constellation svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Lines are "drawn" using stroke-dasharray / stroke-dashoffset.
+   Every line has pathLength="100", so a dash of 100 hides the whole line,
+   and animating the offset from 100 to 0 "draws" it. */
+.constellation line {
+  stroke: rgba(255, 204, 0, 0.55);
+  stroke-width: 1.5;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.constellation circle {
+  fill: var(--accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 6px var(--accent));  /* makes the stars glow */
+}
+
+/* When the section scrolls into view, JS adds "visible" and the drawing starts */
+.constellation.visible line {
+  animation: drawLine 1.6s ease forwards;
+}
+
+.constellation.visible circle {
+  animation: popIn 0.5s ease 1s forwards;
+}
+
+/* One round photo. left/top come from --x and --y in the HTML.
+   "translate: -50% -50%" moves it so --x/--y is its CENTRE, not its corner. */
+.sky-photo {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  aspect-ratio: 1;
+  margin: 0;
+  translate: -50% -50%;
+  opacity: 0;          /* hidden until the section is visible */
+  z-index: 1;
+}
+
+/* ENTRANCE: photos pop in one after another (--i = 0, 1, 2 ...) */
+.constellation.visible .sky-photo {
+  animation: photoPop 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 0.15s + 0.5s);
+}
+
+/* A thin dashed ring that slowly spins around each photo, like an orbit */
+.sky-photo::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 204, 0, 0.45);
+  animation: spin 18s linear infinite;
+}
+
+/* The round frame that crops the photo into a circle */
+.photo-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;   /* hides the corners of the square photo */
+  border: 2px solid rgba(255, 204, 0, 0.6);
+  box-shadow: 0 0 18px rgba(255, 204, 0, 0.25);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease,
+              box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+/* Normal state: black and white, a bit darker */
+.photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* fills the circle without stretching */
+  filter: grayscale(1) brightness(0.75) contrast(1.1);
+  transition: filter 0.5s ease, transform 0.6s ease;
+}
+
+/* A yellow layer on top. "mix-blend-mode: color" gives the black and white
+   photo a yellow tint, so all photos match the theme (a "duotone" look). */
+.photo-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  mix-blend-mode: color;
+  opacity: 0.35;
+  transition: opacity 0.5s ease;
+}
+
+/* HOVER: the photo comes to the front, grows, glows,
+   turns into full colour and zooms in a little inside its circle */
+.sky-photo:hover {
+  z-index: 3;
+}
+
+.sky-photo:hover .photo-frame {
+  transform: scale(1.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.sky-photo:hover img {
+  filter: none;
+  transform: scale(1.08);
+}
+
+.sky-photo:hover .photo-frame::after {
+  opacity: 0;   /* remove the yellow tint = full colour */
+}
+
+/* HOVER: the other photos get darker, so the hovered one stands out.
+   :has() means "the constellation that HAS a hovered photo inside it".
+   (We darken with brightness instead of opacity, so the lines don't show through.) */
+.constellation:has(.sky-photo:hover) .sky-photo:not(:hover) img {
+  filter: grayscale(1) brightness(0.3);
+}
+
+/* HOVER: the caption appears below the photo */
+.sky-photo figcaption {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-top: 14px;
+  transform: translate(-50%, 8px);
+  white-space: nowrap;
+  padding: 4px 12px;
+  border-radius: 50px;
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sky-photo:hover figcaption {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Call-to-action banner: a big yellow block with black text,
+   the boldest part of the page (like the logo's yellow pill) */
+.cta {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 32px;
+  padding: 70px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta h2 {
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  margin-bottom: 12px;
+}
+
+.cta p {
+  color: rgba(10, 10, 10, 0.75);
+  margin-bottom: 32px;
+}
+
+/* Inside the yellow block, the button is black with yellow text.
+   On hover, white ink fills it and the text turns black. */
+.cta .btn-primary {
+  background: var(--on-accent);
+  color: var(--accent);
+  border-color: var(--on-accent);
+  --fill: var(--text);
+  --fill-text: var(--on-accent);
+}
+
+.cta .btn-primary:hover,
+.cta .btn-primary:focus-visible {
+  color: var(--fill-text);
+  border-color: var(--text);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* A white glowing circle decoration inside the CTA */
+.cta::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45), transparent 70%);
+  top: -100px;
+  right: -80px;
+  animation: float 6s ease-in-out infinite;
+}
+
+
+/* ---------- 10. CARDS ----------
+   The same card style is reused for features, events, team and roles. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* as many columns as fit */
+  gap: 24px;
+}
+
+/* A grid whose last row is CENTRED (used for the Domain leads on the Team page).
+   CSS Grid always starts a half-empty row on the left, so here we use flexbox:
+   cards wrap onto new rows, and justify-content: center puts the
+   leftover cards in the middle. Each card is 1/4 of the row (minus the gaps). */
+.grid-center {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.grid-center > * {
+  flex: 0 1 calc((100% - 3 * 24px) / 4);  /* 4 cards per row, 3 gaps of 24px */
+  min-width: 240px;
+}
+
+/* On phones each card takes the full width */
+@media (max-width: 600px) {
+  .grid-center > * {
+    flex-basis: 100%;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  box-shadow: var(--shadow);
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover: card lifts up, tilts a tiny bit and the border turns yellow */
+.card:hover {
+  transform: translateY(-8px) rotate(-1deg);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(255, 204, 0, 0.5);
+}
+
+/* Yellow bar at the top of each card that grows on hover */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.card:hover::before {
+  width: 100%;
+}
+
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  background: var(--surface-2);
+  transition: transform 0.4s ease;
+}
+
+/* In centred sections, centre the icon too */
+.center .card-icon {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card:hover .card-icon {
+  transform: scale(1.1) rotate(8deg);
+}
+
+/* Three tints for the icon boxes, so cards don't all look the same */
+.bg-yellow { background: rgba(255, 204, 0, 0.18); }
+.bg-dark   { background: var(--surface-2); }
+.bg-light  { background: rgba(255, 255, 255, 0.10); }
+
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.card p {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+/* Small rounded label, e.g. "Hackathon" */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 204, 0, 0.12);
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+
+/* ---------- 11. STATS COUNTERS ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  text-align: center;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 16px;
+}
+
+.stat-number {
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.stat-label {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+
+/* ---------- 12. EVENTS PAGE ---------- */
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.filter-btn {
+  padding: 10px 24px;
+  border-radius: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.3s ease, color 0.4s ease, border-color 0.4s ease;
+  /* Uses the same "ink drop" hover as .btn (section 7), with yellow ink */
+  --fill: var(--accent);
+  --fill-text: var(--on-accent);
+}
+
+.filter-btn:hover,
+.filter-btn:focus-visible {
+  border-color: var(--accent);
+  color: var(--fill-text);
+}
+
+/* The selected filter is yellow (it is already full, so no ink is needed) */
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.filter-btn.active::before {
+  display: none;
+}
+
+/* Event cards that don't match the filter are hidden */
+.event-card {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.event-card.hide {
+  display: none;
+}
+
+/* Filter buttons lined up on the left (instead of centred) */
+.filter-left {
+  justify-content: flex-start;
+}
+
+/* ----- Page title + counters ----- */
+.events-hero {
+  padding-bottom: 50px;
+}
+
+/* Always 3 counters side by side (they get smaller on phones, see section 19) */
+.event-stats {
+  max-width: 720px;
+  margin: 48px auto 0;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 720px) {
+  .event-stats {
+    gap: 10px;
+  }
+
+  .event-stats .stat {
+    padding: 18px 6px;
+  }
+
+  .event-stats .stat-number {
+    font-size: 2rem;
+  }
+
+  .event-stats .stat-label {
+    font-size: 0.72rem;
+  }
+}
+
+/* ----- TICKER: event names sliding sideways forever ----- */
+.ticker {
+  overflow: hidden;   /* hides the names outside the strip */
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 204, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+  background: rgba(255, 204, 0, 0.04);
+  /* fades the names out at the left and right edges */
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.ticker-track {
+  display: flex;
+  gap: 28px;
+  width: max-content;  /* as wide as all the names together */
+  animation: ticker 35s linear infinite;
+}
+
+/* Hovering the ticker pauses it, so people can read it */
+.ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-track span {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+/* The ✦ separators are yellow */
+.ticker-track span:nth-child(even) {
+  color: var(--accent);
+}
+
+/* Every other event name is an "outline" (only the edges of the letters) */
+.ticker-track span:nth-child(4n+3) {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--accent);
+}
+
+/* ----- FLAGSHIP "BENTO" GRID -----
+   2 columns. The big tile spans 2 rows, so the other two stack next to it. */
+.flagship-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+}
+
+.tile-big {
+  grid-row: span 2;
+}
+
+/* One picture tile: cover image on top, text below */
+.flagship-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid rgba(255, 204, 0, 0.25);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+/* HOVER: lift up and glow */
+.flagship-tile:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent);
+  box-shadow: 0 20px 50px rgba(255, 204, 0, 0.18);
+}
+
+/* HOVER: a beam of light sweeps across the tile.
+   It's a see-through white stripe, tilted with skewX, that starts
+   off the left edge and moves past the right edge. */
+.flagship-tile::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+  transition: left 0.8s ease;
+}
+
+.flagship-tile:hover::after {
+  left: 125%;
+}
+
+/* Cover image area */
+.tile-cover {
+  position: relative;
+  height: 190px;
+  overflow: hidden;   /* so the zoomed image stays inside */
+}
+
+.tile-big .tile-cover {
+  height: auto;
+  flex: 1;            /* the big tile's cover fills the spare height */
+  min-height: 280px;
+}
+
+.cover-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+/* Keep the bottom of the image visible when it is cropped (the DEADLOCK lettering) */
+.cover-bottom {
+  object-position: center bottom;
+}
+
+/* HOVER: the cover image zooms in slowly */
+.flagship-tile:hover .cover-photo {
+  transform: scale(1.08);
+}
+
+/* PromptVerse cover: a dark photo + a yellow grid + the logo on top */
+.cover-promptverse .cover-photo {
+  position: absolute;
+  inset: 0;
+  filter: grayscale(1) brightness(0.3);
+}
+
+/* The yellow grid: two repeating line gradients (one across, one down).
+   Moving background-position makes the grid slide slowly. */
+.cover-promptverse::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 204, 0, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 204, 0, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridMove 6s linear infinite;
+  z-index: 1;
+}
+
+/* A yellow glow in the middle, behind the logo */
+.cover-promptverse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 204, 0, 0.25), transparent 60%);
+  z-index: 1;
+}
+
+.cover-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 78%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  filter: drop-shadow(0 0 20px rgba(255, 204, 0, 0.4));
+  animation: logoFloat 5s ease-in-out infinite;
+}
+
+/* Text part of a tile */
+.tile-body {
+  padding: 24px 26px 26px;
+}
+
+.tile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tile-tags .tag {
+  margin-bottom: 0;
+}
+
+/* "Coming soon" badge with a pulsing green dot (same dot as the hero tag) */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2ECC71;
+}
+
+.live-badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ECC71;
+  margin-right: 6px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.flagship-tile h3 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.tile-big h3 {
+  font-size: 1.7rem;
+}
+
+.flagship-tile p {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  margin-bottom: 14px;
+}
+
+/* Small facts in a row */
+.tile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+/* "View details →" link. The arrow moves right on hover. */
+.tile-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.tile-link span {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.flagship-tile:hover .tile-link span,
+.ticket:hover .tile-link span {
+  transform: translateX(6px);
+}
+
+/* ----- EVENT TICKETS ----- */
+.ticket-grid {
+  display: grid;
+  /* min(400px, 100%) stops the tickets from overflowing on small phones */
+  grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+  gap: 24px;
+}
+
+.ticket {
+  position: relative;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+/* The two round "notches" where a ticket would be torn.
+   They are circles in the page's background colour, placed on the tear line,
+   half outside the ticket, so they look like bites taken out of it. */
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  left: 99px;          /* the stub is 110px wide, minus half the notch */
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  z-index: 1;
+}
+
+.ticket::before { top: -11px; }
+.ticket::after  { bottom: -11px; }
+
+/* HOVER: the ticket lifts and tilts a little, and its border glows */
+.ticket:hover {
+  transform: translateY(-6px) rotate(-0.6deg);
+  border-color: rgba(255, 204, 0, 0.5);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Left part of the ticket. The dashed right border is the "tear line". */
+.ticket-stub {
+  width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px 0;
+  background: rgba(255, 204, 0, 0.06);
+  border-right: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 18px 0 0 18px;
+  transition: background 0.4s ease;
+}
+
+.ticket-icon {
+  font-size: 2rem;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);  /* a little "bounce" */
+}
+
+/* The type ("WORKSHOP") is written sideways, from bottom to top */
+.ticket-type {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: color 0.4s ease;
+}
+
+/* HOVER: the stub fills with yellow and the icon jumps */
+.ticket:hover .ticket-stub {
+  background: var(--accent);
+}
+
+.ticket:hover .ticket-type {
+  color: var(--on-accent);
+}
+
+.ticket:hover .ticket-icon {
+  transform: scale(1.25) rotate(-10deg);
+}
+
+/* Right part of the ticket */
+.ticket-body {
+  flex: 1;
+  padding: 22px 24px;
+}
+
+.ticket-where {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.ticket h3 {
+  font-size: 1.1rem;
+  margin: 6px 0 8px;
+}
+
+.ticket p {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+
+/* ---------- 13. TEAM PAGE ---------- */
+.team-card {
+  text-align: center;
+}
+
+/* Round avatar showing the person's initials */
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--accent-soft), var(--accent));
+  position: relative;
+}
+
+/* A dashed ring that spins around the avatar on hover */
+.avatar::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 2px dashed var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.team-card:hover .avatar::after {
+  opacity: 1;
+  animation: spin 6s linear infinite;
+}
+
+.team-role {
+  color: var(--accent) !important;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+
+/* ---------- 14. RECRUITMENT PAGE ---------- */
+.role-card {
+  cursor: pointer;
+}
+
+.role-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-header h3 {
+  margin-bottom: 0;
+}
+
+/* The "+" icon rotates into an "x" when the card is open */
+.role-toggle {
+  font-size: 1.6rem;
+  color: var(--accent);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.role-card.open .role-toggle {
+  transform: rotate(45deg);
+}
+
+/* An open card keeps its yellow border */
+.role-card.open {
+  border-color: var(--accent);
+}
+
+/* Hidden details. max-height 0 hides them; JS adds "open" to show them. */
+.role-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+.role-card.open .role-details {
+  max-height: 600px;
+}
+
+.role-details h4 {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  margin: 18px 0 6px;
+  color: var(--accent);
+}
+
+.role-details ul {
+  padding-left: 18px;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+/* Recruitment cards shouldn't tilt (they open/close instead) */
+.role-card:hover {
+  transform: translateY(-4px);
+}
+
+
+/* ---------- 15. FORMS ---------- */
+.form-wrapper {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  background: var(--surface-2);
+  color: var(--text);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #71717A;
+}
+
+/* Dropdown options also need dark colours */
+.form-group option {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* Yellow glow when the user clicks into a field */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.15);
+}
+
+/* Red border + shake when a field has an error (added by JavaScript) */
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+  border-color: var(--error);
+  animation: shake 0.4s ease;
+}
+
+.error-text {
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  min-height: 1em;
+}
+
+.form-message {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 500;
+  display: none;
+}
+
+.form-message.success {
+  display: block;
+  background: rgba(255, 204, 0, 0.12);
+  border: 1px solid rgba(255, 204, 0, 0.4);
+  color: var(--accent);
+  animation: popIn 0.5s ease;
+}
+
+/* Contact page: info cards next to the form */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-info .card {
+  padding: 24px;
+}
+
+.contact-info a:hover {
+  color: var(--accent);
+}
+
+
+/* ---------- 15b. STATUES (Home page) ----------
+   The two statue drawings from the old website:
+   - Hephaestus stands on the right of the hero
+   - Athena stands on the left of the "More about us" section
+   They are white line drawings with a transparent background,
+   so they sit straight on the black page with no box around them.
+
+   Effects:
+   1. ENTRANCE - a glowing yellow line scans up from the feet, and the
+                 statue appears behind it (clip-path animation)
+   2. IDLE     - the statue floats gently, with a yellow aura breathing behind it
+   3. HOVER    - a gold copy of the statue fills up from the feet,
+                 the statue lifts up, and its name plate appears */
+
+/* Where each statue sits in its column */
+.hero-statue {
+  display: flex;
+  justify-content: flex-end;  /* pushed to the right */
+}
+
+.statue-side {
+  display: flex;
+  justify-content: flex-start; /* pushed to the left */
+}
+
+/* The box that holds the two stacked images, the aura and the name.
+   "position: relative" lets the gold image, aura, scan line and name
+   be placed on top of it with "position: absolute".
+   IDLE: the whole statue floats gently up and down. */
+.statue {
+  position: relative;
+  cursor: pointer;
+  animation: statueFloat 7s ease-in-out infinite;
+}
+
+/* Second statue floats at a different moment than the first */
+.statue-side .statue {
+  animation-delay: -3.5s;
+}
+
+/* AURA: a soft yellow glow behind the statue that slowly "breathes" */
+.statue::before {
+  content: "";
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 90%;
+  aspect-ratio: 1;  /* as tall as it is wide = a circle */
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 204, 0, 0.22), transparent 65%);
+  opacity: 0.6;
+  transform: translate(-50%, -50%);  /* centre it on the statue */
+  animation: auraPulse 4s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+/* Both images: same size, stacked on top of each other */
+.statue img {
+  display: block;
+  width: auto;
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-statue .statue img { height: 530px; }
+.statue-side .statue img { height: 480px; }
+
+/* The gold copy sits exactly on top of the white one.
+   clip-path: inset(100% 0 0 0) cuts away 100% from the TOP,
+   so nothing of it is visible yet.
+   (".statue .statue-gold" uses two classes so it wins over ".statue img" above) */
+.statue .statue-gold {
+  position: absolute;
+  top: 0;
+  left: 0;
+  clip-path: inset(100% 0 0 0);
+  filter: drop-shadow(0 0 6px rgba(255, 204, 0, 0.55));  /* glow that follows the lines */
+  transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* HOVER 1: cut away 0% instead, so the gold fills up from the feet to the head */
+.statue:hover .statue-gold {
+  clip-path: inset(0 0 0 0);
+}
+
+/* HOVER 2: both images lift up a little */
+.statue:hover img {
+  transform: translateY(-12px);
+}
+
+/* HOVER 3: the aura glows brighter */
+.statue:hover::before {
+  opacity: 1;
+}
+
+/* HOVER 4: the name plate fades in and slides up */
+.statue-name {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translate(-50%, 10px);
+  white-space: nowrap;
+  padding: 6px 16px;
+  border-radius: 50px;
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.statue:hover .statue-name {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Touch screens have no hover, so always show the name there */
+@media (hover: none) {
+  .statue-name {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ENTRANCE: the "scan" reveal.
+   revealOnScroll() in main.js adds "visible" when the statue comes on screen.
+   Until then the white statue is fully cut away (hidden). */
+.scan-reveal .statue-base {
+  clip-path: inset(100% 0 0 0);
+}
+
+/* Then it is uncovered from the bottom to the top... */
+.scan-reveal.visible .statue-base {
+  animation: scanReveal 1.8s cubic-bezier(0.65, 0, 0.35, 1) var(--scan-delay, 0.2s) both;
+}
+
+/* ...while a glowing yellow line moves up at exactly the same speed */
+.statue::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 18px 4px var(--accent-glow), 0 0 4px var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scan-reveal.visible .statue::after {
+  animation: scanLine 1.8s cubic-bezier(0.65, 0, 0.35, 1) var(--scan-delay, 0.2s) both;
+}
+
+/* Hephaestus is on screen straight away, so start a moment after the doors open
+   (all animations are paused until the intro loader is finished) */
+.scan-late {
+  --scan-delay: 0.5s;
+}
+
+/* "More about us" section: statue (5 parts) and text (7 parts) */
+.statue-section {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.statue-text {
+  max-width: 560px;
+  color: var(--text-soft);
+  margin-bottom: 32px;
+}
+
+/* Yellow part of a heading */
+.highlight {
+  color: var(--accent);
+}
+
+
+/* ---------- 15c. EVENT POP-UP (MODAL) ----------
+   Clicking an event card opens this pop-up (see setupEventModal in main.js).
+   Hidden state: invisible + box moved down and smaller.
+   Open state (.open): visible + box in place. Transitions animate between them. */
+
+/* Everything with data-event opens the pop-up, so show a pointer cursor */
+[data-event] {
+  cursor: pointer;
+}
+
+/* Plain cards (the Home page featured events) leave room for a "View details" hint.
+   (The Events page tiles and tickets have their own "View details" link in the HTML.) */
+.card[data-event] {
+  padding-bottom: 52px;
+}
+
+/* "View details →" hint, added with ::after so no extra HTML is needed.
+   It is hidden and slides in from the left on hover. */
+.card[data-event]::after {
+  content: "View details →";
+  position: absolute;
+  left: 28px;
+  bottom: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* In centred sections the hint is centred too */
+.center .card[data-event]::after {
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.card[data-event]:hover::after,
+.card[data-event]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Touch screens have no hover, so always show the hint there */
+@media (hover: none) {
+  .card[data-event]::after {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Yellow outline when a card is reached with the Tab key */
+[data-event]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* The whole pop-up layer covers the screen */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  visibility: hidden;   /* hidden, and can't be clicked */
+  opacity: 0;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.modal.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Dark, blurred background behind the box */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+/* The white-on-dark box with the details */
+.modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  overflow-y: auto;     /* scrolls inside if the details are long */
+  background: var(--surface);
+  border: 1px solid rgba(255, 204, 0, 0.35);
+  border-radius: 24px;
+  padding: 40px 32px 32px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 204, 0, 0.1);
+  /* Starts lower and smaller... */
+  transform: translateY(40px) scale(0.92);
+  /* ...and springs into place (same smooth curve as the statues) */
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal.open .modal-box {
+  transform: translateY(0) scale(1);
+}
+
+/* Yellow bar at the top of the box that grows when it opens */
+.modal-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.6s ease 0.2s;  /* 0.2s delay: starts after the box appears */
+}
+
+.modal.open .modal-box::before {
+  width: 100%;
+}
+
+/* Stops the page behind the pop-up from scrolling (class added by JS) */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Round X button. It spins and turns yellow on hover. */
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.modal-close:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: rotate(90deg);
+}
+
+/* Yellow focus ring only for keyboard users (not after a mouse click) */
+.modal-close:focus {
+  outline: none;
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Icon + tag + title + status */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding-right: 40px;  /* keeps the title away from the X button */
+}
+
+.modal-header .card-icon {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.modal-header .tag {
+  margin-bottom: 6px;
+}
+
+.modal-title {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  margin-bottom: 6px;
+}
+
+.modal-status {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.modal-summary {
+  color: var(--text-soft);
+  margin-bottom: 24px;
+}
+
+/* Quick facts: small boxes side by side */
+.modal-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.info-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.info-box span {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.info-box strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;  /* long words like a web address wrap instead of sticking out */
+}
+
+.modal-heading {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+/* Timeline: a yellow line on the left with a dot for each step */
+.modal-steps {
+  list-style: none;
+  border-left: 2px solid rgba(255, 204, 0, 0.3);
+  margin: 0 0 28px 8px;
+}
+
+.modal-steps li {
+  position: relative;
+  padding: 0 0 20px 24px;
+  /* Each step slides in, one after another (--i comes from JavaScript) */
+  animation: stepIn 0.5s ease both;
+  animation-delay: calc(var(--i) * 0.12s + 0.25s);
+}
+
+/* The yellow dot on the line */
+.modal-steps li::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.step-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.modal-steps h4 {
+  font-size: 1rem;
+  margin: 4px 0;
+}
+
+.modal-steps p {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+/* Topics list with yellow star bullets */
+.modal-topics {
+  list-style: none;
+  margin-bottom: 28px;
+}
+
+.modal-topics li {
+  padding: 8px 0 8px 28px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-soft);
+  animation: stepIn 0.5s ease both;
+  animation-delay: calc(var(--i) * 0.1s + 0.25s);
+}
+
+.modal-topics li::before {
+  content: "✦";
+  position: absolute;
+  left: 4px;
+  color: var(--accent);
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+
+/* ---------- 16. FOOTER ---------- */
+.footer {
+  background: #050505;
+  color: var(--text-soft);
+  padding: 60px 0 24px;
+  margin-top: 60px;
+  border-top: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer .logo {
+  margin-bottom: 12px;
+}
+
+.footer h4 {
+  color: var(--text);
+  margin-bottom: 14px;
+  font-family: var(--font-body);
+}
+
+.footer ul {
+  list-style: none;
+}
+
+.footer li {
+  margin-bottom: 8px;
+}
+
+.footer a:hover {
+  color: var(--accent);
+}
+
+.socials {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Round social buttons. Normally the icons are grey. */
+.socials a {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);  /* the SVG uses "currentColor", so it takes this colour */
+  transition: all 0.3s ease;
+}
+
+.socials svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+/* Each icon stores its REAL logo colours in variables:
+   --brand-bg   = the logo's background colour (or gradient)
+   --brand-icon = the colour of the symbol on top
+   --brand-glow = the colour of the glow around the button */
+.social-linkedin {
+  --brand-bg: #0A66C2;        /* LinkedIn blue */
+  --brand-icon: #FFFFFF;      /* white "in" */
+  --brand-glow: #0A66C2;
+}
+
+.social-instagram {
+  /* Instagram's real logo is a gradient: yellow, orange, pink, purple, blue */
+  --brand-bg: radial-gradient(circle at 30% 107%, #FDF497 0%, #FDF497 5%, #FD5949 45%, #D6249F 60%, #285AEB 90%);
+  --brand-icon: #FFFFFF;      /* white camera */
+  --brand-glow: #D6249F;
+}
+
+.social-github {
+  --brand-bg: #FFFFFF;        /* white background */
+  --brand-icon: #181717;      /* GitHub's black cat */
+  --brand-glow: #FFFFFF;
+}
+
+.social-whatsapp {
+  --brand-bg: #25D366;        /* WhatsApp green */
+  --brand-icon: #FFFFFF;      /* white chat bubble */
+  --brand-glow: #25D366;
+}
+
+/* Hover: the button becomes the real logo (background + symbol colour),
+   glows in the same colour, and bounces up.
+   "background" (not background-color) is used so it also accepts a gradient. */
+.socials a:hover {
+  background: var(--brand-bg);
+  background-origin: border-box;  /* gradient also fills under the border, so no thin lines at the edges */
+  color: var(--brand-icon);
+  border-color: transparent;
+  box-shadow: 0 6px 20px var(--brand-glow);
+  transform: translateY(-4px);
+}
+
+/* The symbol inside grows a little */
+.socials a:hover svg {
+  transform: scale(1.12);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+
+/* ---------- 17. SCROLL REVEAL ----------
+   Elements with class "reveal" start invisible and a bit lower.
+   JavaScript adds "visible" when they scroll onto the screen. */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Variations: slide in from the left or right instead of from below */
+.reveal-left  { transform: translateX(-60px); }
+.reveal-right { transform: translateX(60px); }
+
+.reveal-left.visible,
+.reveal-right.visible {
+  transform: translateX(0);
+}
+
+/* Cards inside a grid appear one after another (staggered) */
+.grid .reveal:nth-child(2) { transition-delay: 0.1s; }
+.grid .reveal:nth-child(3) { transition-delay: 0.2s; }
+.grid .reveal:nth-child(4) { transition-delay: 0.3s; }
+.grid .reveal:nth-child(5) { transition-delay: 0.4s; }
+.grid .reveal:nth-child(6) { transition-delay: 0.5s; }
+
+
+/* ---------- 18. KEYFRAME ANIMATIONS ----------
+   @keyframes describe how something changes over time.
+   Other rules use them with the "animation" property. */
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-25px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes letterRise {
+  from { opacity: 0; transform: translateY(60px) rotate(8deg); }
+  to   { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+/* Statue entrance: uncover the image from the bottom to the top */
+@keyframes scanReveal {
+  from { clip-path: inset(100% 0 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+/* The scan line moves from the feet (bottom: 0) to the head (bottom: 100%),
+   fading in at the start and out at the end */
+@keyframes scanLine {
+  0%   { bottom: 0;    opacity: 0; }
+  8%   { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { bottom: 100%; opacity: 0; }
+}
+
+/* Loader: the yellow line shoots out to full width, then fades */
+@keyframes seamFlash {
+  0%   { width: 0;    opacity: 1; }
+  35%  { width: 100%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
+
+/* Loader: "Click anywhere to skip" gently fades in and out */
+@keyframes hintPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* Events ticker: move left by half the track (= one full copy of the names) */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* PromptVerse cover grid slides diagonally by one square (40px), then repeats */
+@keyframes gridMove {
+  from { background-position: 0 0; }
+  to   { background-position: 40px 40px; }
+}
+
+/* PromptVerse logo floats gently. translate(-50%, -50%) keeps it centred. */
+@keyframes logoFloat {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50%      { transform: translate(-50%, -58%); }
+}
+
+/* Photo constellation: each photo grows in from small while fading in.
+   (uses the "scale" property, so it doesn't clash with "translate" on the same photo) */
+@keyframes photoPop {
+  from { opacity: 0; scale: 0.3; }
+  to   { opacity: 1; scale: 1; }
+}
+
+/* Gentle floating for the statues (smaller than the planets' float) */
+@keyframes statueFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* The aura grows and shrinks. translate(-50%, -50%) keeps it centred. */
+@keyframes auraPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.9); }
+  50%      { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* Pop-up timeline steps / topics: slide in from the left while fading in */
+@keyframes stepIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(0.9); }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: 0.5; }
+}
+
+@keyframes scrollWheel {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(14px); }
+}
+
+@keyframes sparkleFade {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(20px) scale(0.3); }
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.5); }
+  70%  { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-6px); }
+  75%      { transform: translateX(6px); }
+}
+
+
+/* ---------- 19. RESPONSIVE (MOBILE) ----------
+   @media rules only apply when the screen is smaller than the given width. */
+@media (max-width: 860px) {
+  /* Events page: flagship tiles stack in one column */
+  .flagship-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tile-big {
+    grid-row: auto;
+  }
+
+  .tile-big .tile-cover {
+    min-height: 220px;
+  }
+
+  /* Hero: text on top, Hephaestus below, everything centred */
+  .hero-grid,
+  .statue-section {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-logo {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-text,
+  .statue-text {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-statue,
+  .statue-side {
+    justify-content: center;
+  }
+
+  /* Smaller statues on phones (like the old website) */
+  .hero-statue .statue img { height: 400px; }
+  .statue-side .statue img { height: 340px; }
+
+  /* Athena goes BELOW her text on phones (order 2 = shown second) */
+  .statue-side {
+    order: 2;
+  }
+
+  /* Stack two-column layouts into one column */
+  .about-grid,
+  .contact-grid,
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .planet-1 {
+    width: 100px;
+    height: 100px;
+  }
+
+  .planet-1::after {
+    width: 150px;
+    height: 32px;
+  }
+
+  /* Fainter planets so they don't distract from text on small screens */
+  .planet {
+    opacity: 0.3;
+  }
+}
+
+@media (max-width: 720px) {
+  /* Show the hamburger button */
+  .menu-toggle {
+    display: flex;
+  }
+
+  /* Turn the nav links into a dropdown panel, hidden by default */
+  .nav-links {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    padding: 28px 0;
+    background: var(--bg);
+    border-bottom: 1px solid rgba(255, 204, 0, 0.3);
+    transform: translateY(-150%);  /* moved up out of view */
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+
+  /* JavaScript adds "open" to slide the menu down */
+  .nav-links.open {
+    transform: translateY(0);
+  }
+
+  .section {
+    padding: 64px 0;
+  }
+
+  .form {
+    padding: 28px 20px;
+  }
+
+  .cta {
+    padding: 50px 24px;
+  }
+
+  /* Pop-up: less padding, and the icon sits above the title */
+  .modal {
+    padding: 12px;
+  }
+
+  .modal-box {
+    max-height: 90vh;
+    padding: 36px 20px 24px;
+  }
+
+  .modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-title {
+    letter-spacing: 1px;
+  }
+}
+
+
+/* ---------- 20. REDUCED MOTION ----------
+   Some people get dizzy from animations and turn on "reduce motion"
+   in their device settings. We respect that by turning animations off. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
